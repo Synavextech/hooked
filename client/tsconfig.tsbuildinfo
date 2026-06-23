@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/Navigation.tsx","./src/components/WhatsAppButton.tsx","./src/contexts/AuthContext.tsx","./src/lib/api.ts","./src/lib/utils.ts","./src/pages/Admin.tsx","./src/pages/Auth.tsx","./src/pages/Dashboard.tsx","./src/pages/Landing.tsx","./src/pages/Profile.tsx"],"version":"6.0.3"}
