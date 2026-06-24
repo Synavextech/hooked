@@ -85,7 +85,8 @@ const Dashboard: React.FC = () => {
     if (!user) return;
 
     // Connect to the socket server using the base URL
-    const socket = io('http://localhost:5000', {
+    const socketUrl = import.meta.env.VITE_WS_URL || (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin);
+    const socket = io(socketUrl, {
       withCredentials: true,
     });
 

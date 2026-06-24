@@ -9,13 +9,28 @@ import path from 'path';
 // Load env
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: any) => {
+    // In development or for same-origin requests (no origin header), allow.
+    // In production, check if the origin is in the allowed list.
+    if (!origin || process.env.NODE_ENV !== 'production' || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: {
-    origin: 'http://localhost:5173', // Vite default port
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 app.set('io', io);
 
@@ -27,10 +42,7 @@ import adminRoutes from './routes/admin';
 import reviewRoutes from './routes/reviews';
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());

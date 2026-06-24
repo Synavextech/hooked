@@ -12,13 +12,27 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 // Load env
 dotenv_1.default.config({ path: path_1.default.join(__dirname, '../../.env') });
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.FRONTEND_URL,
+].filter(Boolean);
+const corsOptions = {
+    origin: (origin, callback) => {
+        // In development or for same-origin requests (no origin header), allow.
+        // In production, check if the origin is in the allowed list.
+        if (!origin || process.env.NODE_ENV !== 'production' || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+};
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(httpServer, {
-    cors: {
-        origin: 'http://localhost:5173', // Vite default port
-        credentials: true,
-    },
+    cors: corsOptions,
 });
 app.set('io', io);
 const auth_1 = __importDefault(require("./routes/auth"));
@@ -28,10 +42,7 @@ const payments_1 = __importDefault(require("./routes/payments"));
 const admin_1 = __importDefault(require("./routes/admin"));
 const reviews_1 = __importDefault(require("./routes/reviews"));
 // Middleware
-app.use((0, cors_1.default)({
-    origin: 'http://localhost:5173',
-    credentials: true,
-}));
+app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ limit: '50mb', extended: true }));
 app.use((0, cookie_parser_1.default)());
