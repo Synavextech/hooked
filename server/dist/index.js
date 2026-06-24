@@ -46,6 +46,24 @@ app.use('/api/reviews', reviews_1.default);
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+    const clientDistPath = path_1.default.join(__dirname, '../../client/dist');
+    app.use(express_1.default.static(clientDistPath));
+    // Wildcard fallback for React routing (SPA) support
+    app.get('*', (req, res, next) => {
+        // If request is for an API route that was not matched, return 404 instead of index.html
+        if (req.path.startsWith('/api/')) {
+            res.status(404).json({ error: 'API endpoint not found' });
+            return;
+        }
+        res.sendFile(path_1.default.join(clientDistPath, 'index.html'), (err) => {
+            if (err) {
+                next(err);
+            }
+        });
+    });
+}
 // Setup Socket.io
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
